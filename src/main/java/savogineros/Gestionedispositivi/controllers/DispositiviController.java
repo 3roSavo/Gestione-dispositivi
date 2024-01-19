@@ -5,11 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import savogineros.Gestionedispositivi.entities.Dispositivo;
-import savogineros.Gestionedispositivi.entities.Utente;
 import savogineros.Gestionedispositivi.payloadsDTO.NewDispositivoRequestDTO;
 import savogineros.Gestionedispositivi.payloadsDTO.NewDispositivoResponseDTO;
-import savogineros.Gestionedispositivi.payloadsDTO.NewUtenteRequestDTO;
-import savogineros.Gestionedispositivi.payloadsDTO.NewUtenteResponseDTO;
 import savogineros.Gestionedispositivi.services.DispositiviService;
 
 import java.util.UUID;

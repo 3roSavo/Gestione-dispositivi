@@ -7,10 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import savogineros.Gestionedispositivi.entities.Dispositivo;
-import savogineros.Gestionedispositivi.entities.Utente;
 import savogineros.Gestionedispositivi.exceptions.NotFoundException;
 import savogineros.Gestionedispositivi.payloadsDTO.NewDispositivoRequestDTO;
-import savogineros.Gestionedispositivi.payloadsDTO.NewUtenteRequestDTO;
 import savogineros.Gestionedispositivi.repositories.DispositiviDAO;
 
 import java.util.Optional;
