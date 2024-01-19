@@ -1,6 +1,10 @@
 package savogineros.Gestionedispositivi.payloadsDTO;
 
-public record NewUtenteRequestDTO(String userName, String nome, String cognome, String email) {
+import savogineros.Gestionedispositivi.entities.Dispositivo;
+
+import java.util.List;
+
+public record NewUtenteRequestDTO(String userName, String nome, String cognome, String email, List<Dispositivo> listaDispositivi) {
 }
 // I record dispongono in automatico di tutti i getter, MA non dei setter
 // Dato che non abbiamo i setter il costruttore con tutti gli argomenti è incluso, quindi non devo
