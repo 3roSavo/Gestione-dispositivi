@@ -1,9 +1,7 @@
 package savogineros.Gestionedispositivi.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,7 +29,8 @@ public class Utente {
 
     private String email;
 
-    @OneToMany(mappedBy = "utente")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "utente")
+    //@JsonIgnore
     private List<Dispositivo> listaDispositivi;
 
     public Utente(String userName, String nome, String cognome, String email) {
