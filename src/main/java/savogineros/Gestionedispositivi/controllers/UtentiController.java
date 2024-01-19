@@ -40,7 +40,8 @@ public class UtentiController {
                 newUtente.getUserName(),
                 newUtente.getNome(),
                 newUtente.getCognome(),
-                newUtente.getEmail());
+                newUtente.getEmail()
+        );
     }
 
     // GET - Ricerca specifico Utente
