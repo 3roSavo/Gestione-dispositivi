@@ -8,8 +8,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import savogineros.Gestionedispositivi.entities.Dispositivo;
 import savogineros.Gestionedispositivi.exceptions.NotFoundException;
-import savogineros.Gestionedispositivi.payloadsDTO.NewDispositivoRequestDTO;
-import savogineros.Gestionedispositivi.payloadsDTO.NewDispositivoResponseDTO;
+import savogineros.Gestionedispositivi.payloadsDTO.Dispositivo.DTOResponseDispositivoLatoDispositivo;
+import savogineros.Gestionedispositivi.payloadsDTO.Dispositivo.DTOResponseDispositivoLatoUtente;
+import savogineros.Gestionedispositivi.payloadsDTO.Dispositivo.NewDispositivoRequestDTO;
+import savogineros.Gestionedispositivi.payloadsDTO.Utente.DTOResponseUtenteLatoDispositivo;
 import savogineros.Gestionedispositivi.repositories.DispositiviDAO;
 
 import java.util.Optional;
@@ -27,15 +29,28 @@ public class DispositiviService {
     }*/
 
     // Prova con response di tipo DTO
-    public Page<NewDispositivoResponseDTO> getAllDispositivi(int page, int size, String sort) {
+    public Page<DTOResponseDispositivoLatoDispositivo> getAllDispositivi(int page, int size, String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<Dispositivo> dispositivoPage = dispositiviDAO.findAll(pageable);
-        return dispositivoPage.map(dispositivo -> {
-            return new NewDispositivoResponseDTO(
+        return dispositivoPage.map(
+                dispositivo -> {
+                    DTOResponseUtenteLatoDispositivo utenteAssociato;
+                    if (dispositivo.getUtente() != null) {
+                        utenteAssociato = new DTOResponseUtenteLatoDispositivo(
+                    dispositivo.getUtente().getId(),
+                    dispositivo.getUtente().getUserName());
+                    } else {
+                        utenteAssociato = null;
+                    }
+                    // Perché se un dispositivo non ha un utente da errore, quindi mettiamo null
+
+            return new DTOResponseDispositivoLatoDispositivo(
                     dispositivo.getId(),
-                    dispositivo.getTipoDispositivo()
+                    dispositivo.getTipoDispositivo(),
+                    utenteAssociato
             );
-        });
+                }
+        );
     }
 
     // POST -> save

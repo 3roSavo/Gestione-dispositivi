@@ -8,9 +8,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import savogineros.Gestionedispositivi.entities.Utente;
 import savogineros.Gestionedispositivi.exceptions.NotFoundException;
-import savogineros.Gestionedispositivi.payloadsDTO.NewUtenteRequestDTO;
+import savogineros.Gestionedispositivi.payloadsDTO.Dispositivo.DTOResponseDispositivoLatoUtente;
+import savogineros.Gestionedispositivi.payloadsDTO.Utente.NewUtenteRequestDTO;
+import savogineros.Gestionedispositivi.payloadsDTO.Utente.DTOResponseUtenteLatoUtente;
 import savogineros.Gestionedispositivi.repositories.UtentiDAO;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,9 +24,25 @@ public class UtentiService {
     private UtentiDAO utentiDAO;
 
     // GET -> getAllUsers
-    public Page<Utente> getAllUsers(int page, int size, String sort) {
+    public Page<DTOResponseUtenteLatoUtente> getAllUsers(int page, int size, String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
-        return utentiDAO.findAll(pageable);
+        Page<Utente> listaUtenti = utentiDAO.findAll(pageable);
+        return listaUtenti.map(utente -> {
+        List<DTOResponseDispositivoLatoUtente> listaDispositivi = new ArrayList<>();
+            utente.getListaDispositivi().forEach(dispositivo ->
+                    listaDispositivi.add(new DTOResponseDispositivoLatoUtente(dispositivo.getId(),
+                            dispositivo.getTipoDispositivo())));
+            return new DTOResponseUtenteLatoUtente(
+                    utente.getId(),
+                    utente.getUserName(),
+                    utente.getNome(),
+                    utente.getCognome(),
+                    utente.getEmail(),
+                    listaDispositivi
+            );
+            // Finalmente abbiamo usato due DTO per personalizzare la risposta in JSON senza creare StackOverflow
+            // Ho modificato col mio UtenteDTO la List<Dispositivo> in List<DTOResponseDispositivoLatoUtente> che tralascia l'utente
+        });
     }
 
     // POST -> save
@@ -62,5 +82,4 @@ public class UtentiService {
         Utente utente = getUtenteById(idUtente);
         utentiDAO.delete(utente);
     }
-
 }

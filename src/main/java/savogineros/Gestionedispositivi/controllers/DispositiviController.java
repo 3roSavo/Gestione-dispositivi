@@ -5,8 +5,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import savogineros.Gestionedispositivi.entities.Dispositivo;
-import savogineros.Gestionedispositivi.payloadsDTO.NewDispositivoRequestDTO;
-import savogineros.Gestionedispositivi.payloadsDTO.NewDispositivoResponseDTO;
+import savogineros.Gestionedispositivi.payloadsDTO.Dispositivo.DTOResponseDispositivoLatoDispositivo;
+import savogineros.Gestionedispositivi.payloadsDTO.Dispositivo.DTOResponseDispositivoLatoUtente;
+import savogineros.Gestionedispositivi.payloadsDTO.Dispositivo.NewDispositivoRequestDTO;
 import savogineros.Gestionedispositivi.services.DispositiviService;
 
 import java.util.UUID;
@@ -22,7 +23,7 @@ public class DispositiviController {
     // GET - tutti i dispositivi
     // URL http://localhost:3001/dispositivi
     @GetMapping("")
-    public Page<NewDispositivoResponseDTO> getDispositivi(
+    public Page<DTOResponseDispositivoLatoDispositivo> getDispositivi(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sort) {
@@ -33,9 +34,9 @@ public class DispositiviController {
     // URL http://localhost:3001/dispositivi     + (body)
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public NewDispositivoResponseDTO creaDispositivo(@RequestBody NewDispositivoRequestDTO richiestaDispositivo) {
+    public DTOResponseDispositivoLatoUtente creaDispositivo(@RequestBody NewDispositivoRequestDTO richiestaDispositivo) {
         Dispositivo dispositivo = dispositiviService.salvaDispositivo(richiestaDispositivo);
-        return new NewDispositivoResponseDTO(
+        return new DTOResponseDispositivoLatoUtente(
                 dispositivo.getId(),
                 dispositivo.getTipoDispositivo()
         );

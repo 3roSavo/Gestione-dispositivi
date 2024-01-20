@@ -5,10 +5,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import savogineros.Gestionedispositivi.entities.Utente;
-import savogineros.Gestionedispositivi.payloadsDTO.NewUtenteRequestDTO;
-import savogineros.Gestionedispositivi.payloadsDTO.NewUtenteResponseDTO;
+import savogineros.Gestionedispositivi.payloadsDTO.Dispositivo.DTOResponseDispositivoLatoUtente;
+import savogineros.Gestionedispositivi.payloadsDTO.Utente.NewUtenteRequestDTO;
+import savogineros.Gestionedispositivi.payloadsDTO.Utente.DTOResponseUtenteLatoUtente;
 import savogineros.Gestionedispositivi.services.UtentiService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,7 +24,7 @@ public class UtentiController {
     // GET - tutti gli utenti
     // URL http://localhost:3001/utenti
     @GetMapping("")
-    public Page<Utente> getUtenti(
+    public Page<DTOResponseUtenteLatoUtente> getUtenti(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "userName") String sort) {
@@ -33,14 +35,22 @@ public class UtentiController {
     // URL http://localhost:3001/utenti     + (body)
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public NewUtenteResponseDTO creaUtente(@RequestBody NewUtenteRequestDTO utente) {
+    public DTOResponseUtenteLatoUtente creaUtente(@RequestBody NewUtenteRequestDTO utente) {
         Utente newUtente = utentiService.salvaUtente(utente);
-        return new NewUtenteResponseDTO(
+        List<DTOResponseDispositivoLatoUtente> listaDispositivi = new ArrayList<>();
+        newUtente.getListaDispositivi().forEach
+                (dispositivo ->
+                        listaDispositivi.add(new DTOResponseDispositivoLatoUtente(dispositivo.getId(),
+                                dispositivo.getTipoDispositivo())));
+        return new DTOResponseUtenteLatoUtente(
                 newUtente.getId(),
                 newUtente.getUserName(),
                 newUtente.getNome(),
                 newUtente.getCognome(),
-                newUtente.getEmail()
+                newUtente.getEmail(),
+                listaDispositivi
+                // Anche qui utilizzo i DTO per personalizzare la risposta
+                // Mi esplode la testa ma dovrebbe funzionare :(
         );
     }
 

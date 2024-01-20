@@ -1,4 +1,4 @@
-package savogineros.Gestionedispositivi.payloadsDTO;
+package savogineros.Gestionedispositivi.payloadsDTO.Dispositivo;
 
 import savogineros.Gestionedispositivi.entities.TipoDispositivo;
 import savogineros.Gestionedispositivi.entities.Utente;
