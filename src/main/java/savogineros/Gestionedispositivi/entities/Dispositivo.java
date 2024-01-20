@@ -24,7 +24,7 @@ public class Dispositivo {
     private TipoDispositivo tipoDispositivo;
 
     @ManyToOne
-    @JsonIgnore
+    //@JsonIgnore
     private Utente utente;
 
 

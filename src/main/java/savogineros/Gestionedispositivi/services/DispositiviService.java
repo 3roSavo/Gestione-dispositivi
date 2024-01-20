@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import savogineros.Gestionedispositivi.entities.Dispositivo;
 import savogineros.Gestionedispositivi.exceptions.NotFoundException;
 import savogineros.Gestionedispositivi.payloadsDTO.NewDispositivoRequestDTO;
+import savogineros.Gestionedispositivi.payloadsDTO.NewDispositivoResponseDTO;
 import savogineros.Gestionedispositivi.repositories.DispositiviDAO;
 
 import java.util.Optional;
@@ -20,9 +21,21 @@ public class DispositiviService {
     private DispositiviDAO dispositiviDAO;
 
     // GET -> getAllDispositivi
-    public Page<Dispositivo> getAllDispositivi(int page, int size, String sort) {
+    /*public Page<Dispositivo> getAllDispositivi(int page, int size, String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         return dispositiviDAO.findAll(pageable);
+    }*/
+
+    // Prova con response di tipo DTO
+    public Page<NewDispositivoResponseDTO> getAllDispositivi(int page, int size, String sort) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+        Page<Dispositivo> dispositivoPage = dispositiviDAO.findAll(pageable);
+        return dispositivoPage.map(dispositivo -> {
+            return new NewDispositivoResponseDTO(
+                    dispositivo.getId(),
+                    dispositivo.getTipoDispositivo()
+            );
+        });
     }
 
     // POST -> save

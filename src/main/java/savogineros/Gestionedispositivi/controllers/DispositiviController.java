@@ -22,7 +22,7 @@ public class DispositiviController {
     // GET - tutti i dispositivi
     // URL http://localhost:3001/dispositivi
     @GetMapping("")
-    public Page<Dispositivo> getDispositivi(
+    public Page<NewDispositivoResponseDTO> getDispositivi(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sort) {
