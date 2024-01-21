@@ -53,13 +53,28 @@ public class UtentiService {
     // POST -> save--------------------------------------------------------------------------------------------
     public DTOResponseUtenteLatoUtente salvaUtente(NewUtenteRequestDTO utenteRequestDTO) {
 
+        List<DTOResponseDispositivoLatoUtente> listaDispositivi = new ArrayList<>();
+
         Utente utente = new Utente(
                 utenteRequestDTO.userName(),
                 utenteRequestDTO.nome(),
                 utenteRequestDTO.cognome(),
                 utenteRequestDTO.email()
-        ); // il costruttore non accetta la lista, quindi la setto dopo la creazione
-        utente.getListaDispositivi().addAll(utenteRequestDTO.listaDispositivi());
+        );
+        // il costruttore non accetta la lista, quindi la setto dopo la creazione,
+        // prima però devo assicurarmi che ci siano o meno elementi
+        if (!utenteRequestDTO.listaDispositivi().isEmpty()) {
+
+            utente.getListaDispositivi().addAll(utenteRequestDTO.listaDispositivi());
+
+            listaDispositivi = utente.getListaDispositivi()
+                    .stream()
+                    .map(dispositivo ->
+                            new DTOResponseDispositivoLatoUtente(
+                                    dispositivo.getId(),
+                                    dispositivo.getTipoDispositivo()))
+                    .toList();
+        }
 
         utentiDAO.save(utente);
 
@@ -69,13 +84,7 @@ public class UtentiService {
         utente.setEmail(utenteRequestDTO.email());
         utente.setListaDispositivi(utenteRequestDTO.listaDispositivi());*/
 
-        List<DTOResponseDispositivoLatoUtente> listaDispositivi = utente.getListaDispositivi()
-                .stream()
-                .map(dispositivo ->
-                        new DTOResponseDispositivoLatoUtente(
-                                dispositivo.getId(),
-                                dispositivo.getTipoDispositivo()))
-                .toList();
+
 
         return new DTOResponseUtenteLatoUtente(
                 utente.getId(),

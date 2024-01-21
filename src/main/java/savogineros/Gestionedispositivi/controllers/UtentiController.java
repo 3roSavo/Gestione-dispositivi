@@ -3,8 +3,11 @@ package savogineros.Gestionedispositivi.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import savogineros.Gestionedispositivi.entities.Utente;
+import savogineros.Gestionedispositivi.exceptions.BadRequestException;
 import savogineros.Gestionedispositivi.payloadsDTO.Dispositivo.DTOResponseDispositivoLatoUtente;
 import savogineros.Gestionedispositivi.payloadsDTO.Utente.NewUtenteRequestDTO;
 import savogineros.Gestionedispositivi.payloadsDTO.Utente.DTOResponseUtenteLatoUtente;
@@ -35,10 +38,14 @@ public class UtentiController {
     // URL http://localhost:3001/utenti     + (body)
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public DTOResponseUtenteLatoUtente creaUtente(@RequestBody NewUtenteRequestDTO utente) {
-        return utentiService.salvaUtente(utente);
-                // Anche qui utilizzo i DTO per personalizzare la risposta
-                // Mi esplode la testa ma dovrebbe funzionare :(
+    public DTOResponseUtenteLatoUtente creaUtente(@RequestBody @Validated NewUtenteRequestDTO utente, BindingResult validation) {
+        // Per completare la validazione devo in qualche maniera fare un controllo del tipo: se ci sono errori -> manda risposta con 400 Bad Request
+        if (validation.hasErrors()) {
+            System.out.println(validation);
+            throw new BadRequestException("Ci sono errori nel payload");
+        } else {
+            return utentiService.salvaUtente(utente);
+        }
     }
 
     // GET - Ricerca specifico Utente
