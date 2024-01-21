@@ -44,7 +44,7 @@ public class UtentiController {
     // GET - Ricerca specifico Utente
     // URL http://localhost:3001/utenti/{idUtente}
     @GetMapping("/{idUtente}")
-    public Utente getUtenteById(@PathVariable UUID idUtente) {  // se non sbaglio il nome della variabile DEVE essere
+    public DTOResponseUtenteLatoUtente getUtenteById(@PathVariable UUID idUtente) {  // se non sbaglio il nome della variabile DEVE essere
         return utentiService.getUtenteById(idUtente);           // uguale a quella dell' URL. Quindi anche nella PUT
     }
 

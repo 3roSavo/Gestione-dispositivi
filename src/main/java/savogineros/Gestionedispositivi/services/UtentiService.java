@@ -28,7 +28,7 @@ public class UtentiService {
     @Autowired // Questo DAO lo userò per settare la lista di dispositivi nell'utente
     private DispositiviDAO dispositiviDAO;
 
-    // GET -> getAllUsers----------------------------------------------------------------
+    // GET -> getAllUsers-------------------------------------------------------------------------------------
     public Page<DTOResponseUtenteLatoUtente> getAllUsers(int page, int size, String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<Utente> listaUtenti = utentiDAO.findAll(pageable);
@@ -50,7 +50,7 @@ public class UtentiService {
         });
     }
 
-    // POST -> save----------------------------------------------------------------------------------
+    // POST -> save--------------------------------------------------------------------------------------------
     public DTOResponseUtenteLatoUtente salvaUtente(NewUtenteRequestDTO utenteRequestDTO) {
 
         Utente utente = new Utente(
@@ -87,11 +87,26 @@ public class UtentiService {
         );
     }
 
-    // GET Ricerca specifico utente con id---------------------------------------------------------------------
-    public Utente getUtenteById(UUID idUtente) {
+    // GET Ricerca specifico utente con id------------------------------------------------------------------------
+    public DTOResponseUtenteLatoUtente getUtenteById(UUID idUtente) {
+
         Optional<Utente> utente = utentiDAO.findById(idUtente);
         if (utente.isPresent()) {
-            return utente.get();
+            List<DTOResponseDispositivoLatoUtente> responseDispositivo = new ArrayList<>();
+            if (!utente.get().getListaDispositivi().isEmpty()) {
+                utente.get().getListaDispositivi()
+                        .forEach(dispositivo -> responseDispositivo.add(new DTOResponseDispositivoLatoUtente(
+                                dispositivo.getId(),
+                                dispositivo.getTipoDispositivo())));
+            }
+        return new DTOResponseUtenteLatoUtente(
+                utente.get().getId(),
+                utente.get().getUserName(),
+                utente.get().getNome(),
+                utente.get().getCognome(),
+                utente.get().getEmail(),
+                responseDispositivo
+        );
         } else {
             throw new NotFoundException(idUtente);
         }
@@ -99,7 +114,8 @@ public class UtentiService {
 
     // PUT Modifica un Utente, dato id e corpo della richiesta-------------------------------------------------------
     public DTOResponseUtenteLatoUtente modificaUtente(UUID idUtente, NewUtenteRequestDTO richiestaUtente) {
-        Utente utente = getUtenteById(idUtente);
+        Utente utente = utentiDAO.findById(idUtente).orElseThrow(() -> new NotFoundException(idUtente));
+        // Variante senza if, utilizzando la scorciatoia .orElseThrow per lanciare un'eccezione nel caso id non presente nel DB
         utente.setUserName(richiestaUtente.userName());
         utente.setNome(richiestaUtente.nome());
         utente.setCognome(richiestaUtente.cognome());
@@ -122,12 +138,14 @@ public class UtentiService {
 
         // Innanzitutto controlliamo se la lista dispositivi è vuota o meno, nel caso sia vuota non eseguiamo logica
         if (!richiestaUtente.listaDispositivi().isEmpty()) {
-            richiestaUtente.listaDispositivi().forEach(dispositivo -> {
+            richiestaUtente.listaDispositivi().forEach( dispositivo -> {
 
-                // Controlliamo prima che la lista contenga id validi
+                // Controlliamo poi che ogni elemento contenga id validi
                 Optional<Dispositivo> dispositivoOptional = dispositiviDAO.findById(dispositivo.getId());
                 if (dispositivoOptional.isPresent()) {
-                    responseListaDispositivi.add(new DTOResponseDispositivoLatoUtente(dispositivo.getId(), dispositivoOptional.get().getTipoDispositivo()));
+                    responseListaDispositivi.add(new DTOResponseDispositivoLatoUtente(
+                            dispositivo.getId(),
+                            dispositivoOptional.get().getTipoDispositivo())); // ricordati che nella request in Json passiamo solo l'id
 
                     dispositivoOptional.get().setUtente(utente);
                     dispositiviDAO.save(dispositivoOptional.get());
@@ -154,7 +172,7 @@ public class UtentiService {
 
     // DELETE Elimina utente, dato id
     public void eliminaUtente(UUID idUtente) {
-        Utente utente = getUtenteById(idUtente);
+        Utente utente = utentiDAO.findById(idUtente).orElseThrow(() -> new NotFoundException(idUtente));
         utentiDAO.delete(utente);
     }
 }
