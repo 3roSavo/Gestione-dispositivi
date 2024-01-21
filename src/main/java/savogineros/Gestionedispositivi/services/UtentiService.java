@@ -25,10 +25,10 @@ import java.util.stream.Collectors;
 public class UtentiService {
     @Autowired
     private UtentiDAO utentiDAO;
-    @Autowired
+    @Autowired // Questo DAO lo userò per settare la lista di dispositivi nell'utente
     private DispositiviDAO dispositiviDAO;
 
-    // GET -> getAllUsers
+    // GET -> getAllUsers----------------------------------------------------------------
     public Page<DTOResponseUtenteLatoUtente> getAllUsers(int page, int size, String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<Utente> listaUtenti = utentiDAO.findAll(pageable);
@@ -50,7 +50,7 @@ public class UtentiService {
         });
     }
 
-    // POST -> save
+    // POST -> save----------------------------------------------------------------------------------
     public DTOResponseUtenteLatoUtente salvaUtente(NewUtenteRequestDTO utenteRequestDTO) {
 
         Utente utente = new Utente(
@@ -87,7 +87,7 @@ public class UtentiService {
         );
     }
 
-    // GET Ricerca specifico utente con id
+    // GET Ricerca specifico utente con id---------------------------------------------------------------------
     public Utente getUtenteById(UUID idUtente) {
         Optional<Utente> utente = utentiDAO.findById(idUtente);
         if (utente.isPresent()) {
@@ -97,48 +97,59 @@ public class UtentiService {
         }
     }
 
-    // PUT Modifica un Utente, dato id e corpo della richiesta
-    public Utente modificaUtente(UUID idUtente, NewUtenteRequestDTO richiestaUtente) {
+    // PUT Modifica un Utente, dato id e corpo della richiesta-------------------------------------------------------
+    public DTOResponseUtenteLatoUtente modificaUtente(UUID idUtente, NewUtenteRequestDTO richiestaUtente) {
         Utente utente = getUtenteById(idUtente);
         utente.setUserName(richiestaUtente.userName());
         utente.setNome(richiestaUtente.nome());
         utente.setCognome(richiestaUtente.cognome());
         utente.setEmail(richiestaUtente.email());
 
-        utente.getListaDispositivi().clear();
+        // Penso che prima di modificare la lista di dispositivi andrebbe impostato a null ogni
+        // elemento della lista, così da separare ogni utente dai dispositivi associati
+        // sempre attraverso il dao dei dispositivi, POI puoi procedere all'aggiunta o alla rimozione
+        if (!utente.getListaDispositivi().isEmpty()) {
+            utente.getListaDispositivi().forEach(dispositivo -> {
+                dispositivo.setUtente(null);
+            });
+        }
 
-        // Prima prova risoluzione problema aggiunta lista
-        /*List<Dispositivo> listaDispositivi = new ArrayList<>(richiestaUtente.listaDispositivi()
-                .stream()
-                .map(dispositivo -> dispositiviDAO
-                        .findById(dispositivo.getId()).orElseThrow(() -> new NotFoundException(dispositivo.getId())))
-                .toList());*/
+        List<DTOResponseDispositivoLatoUtente> responseListaDispositivi = new ArrayList<>();
+        // mi servirà per crearmi la mia response lista dispositivi all'interno della response utente
 
-
-        // FORSE IL PROBLEMA È CHE DEVO USARE IL DAO DEL DISPOSITIVO PER SALVARE UNO PIU' DISPOSITIVI NELL'UTENTE
+        // FORSE IL PROBLEMA È CHE DEVO USARE IL DAO DEL DISPOSITIVO PER SALVARE OGNI DISPOSITIVO NELLA LISTA DISPOSITIVI DELL'UTENTE
         // OK RISOLTO PROPRIO IN QUESTO MODO MA E' IL METODO CORRETTO???
-        richiestaUtente.listaDispositivi().forEach(dispositivo -> {
-            Optional<Dispositivo> dispositivoOptional =  dispositiviDAO.findById(dispositivo.getId());
-            // Controlliamo prima che la lista contenga id validi
-            if (dispositivoOptional.isPresent()) {
-                dispositivoOptional.get().setUtente(utente);
-                dispositiviDAO.save(dispositivoOptional.get());
-            } else {
-                throw new NotFoundException(dispositivo.getId());
-            }
-        });
 
+        // Innanzitutto controlliamo se la lista dispositivi è vuota o meno, nel caso sia vuota non eseguiamo logica
+        if (!richiestaUtente.listaDispositivi().isEmpty()) {
+            richiestaUtente.listaDispositivi().forEach(dispositivo -> {
 
-        // Seconda prova risoluzione aggiunta lista
-        //utente.setListaDispositivi(richiestaUtente.listaDispositivi());
-        //listaDispositivi.forEach(dispositivo -> utente.getListaDispositivi().add(dispositivo));
+                // Controlliamo prima che la lista contenga id validi
+                Optional<Dispositivo> dispositivoOptional = dispositiviDAO.findById(dispositivo.getId());
+                if (dispositivoOptional.isPresent()) {
+                    responseListaDispositivi.add(new DTOResponseDispositivoLatoUtente(dispositivo.getId(), dispositivoOptional.get().getTipoDispositivo()));
 
-        //utente.getListaDispositivi().addAll(listaDispositivi);
-        //utente.setListaDispositivi(listaDispositivi);
+                    dispositivoOptional.get().setUtente(utente);
+                    dispositiviDAO.save(dispositivoOptional.get());
+                } else {
+                    throw new NotFoundException(dispositivo.getId());
+                }
+            });
+        }
+
         utente.getListaDispositivi().forEach(dispositivo -> System.out.println(dispositivo));
 
-        // non mi aggiorna la lista dispositivi
-        return utentiDAO.save(utente); // ricordati che la save fa da creazione o modifica nel caso trovi già un elemento con lo stesso id
+        utentiDAO.save(utente);
+        // ricordati che la save fa da creazione o modifica nel caso trovi già un elemento con lo stesso id
+
+        return new DTOResponseUtenteLatoUtente(
+                utente.getId(),
+                utente.getUserName(),
+                utente.getNome(),
+                utente.getCognome(),
+                utente.getEmail(),
+                responseListaDispositivi
+        );
     }
 
     // DELETE Elimina utente, dato id

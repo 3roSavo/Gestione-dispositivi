@@ -51,7 +51,7 @@ public class UtentiController {
     // PUT - Modifica Utente dato id e payload
     // URL http://localhost:3001/utenti/{idUtente}     + (body)
     @PutMapping("/{idUtente}")
-    public Utente modificaUtente(@PathVariable UUID idUtente, @RequestBody NewUtenteRequestDTO richiestaUtente) {
+    public DTOResponseUtenteLatoUtente modificaUtente(@PathVariable UUID idUtente, @RequestBody NewUtenteRequestDTO richiestaUtente) {
         // Mi vengono in mente due modi, o mi inietto in questa classe la repo UtentiDao così da utilizzare un'altra save()
         // Oppure mi faccio un altro metodo specifico per gli Update nel service
         // Seguiamo la seconda opzione
