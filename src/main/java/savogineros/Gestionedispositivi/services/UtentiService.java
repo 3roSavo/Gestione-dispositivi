@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class UtentiService {
@@ -36,7 +35,7 @@ public class UtentiService {
         List<DTOResponseDispositivoLatoUtente> listaDispositivi = new ArrayList<>();
             utente.getListaDispositivi().forEach(dispositivo ->
                     listaDispositivi.add(new DTOResponseDispositivoLatoUtente(dispositivo.getId(),
-                            dispositivo.getTipoDispositivo())));
+                            dispositivo.getStatoDispositivo())));
             return new DTOResponseUtenteLatoUtente(
                     utente.getId(),
                     utente.getUserName(),
@@ -72,7 +71,7 @@ public class UtentiService {
                     .map(dispositivo ->
                             new DTOResponseDispositivoLatoUtente(
                                     dispositivo.getId(),
-                                    dispositivo.getTipoDispositivo()))
+                                    dispositivo.getStatoDispositivo()))
                     .toList();
         }
 
@@ -106,7 +105,7 @@ public class UtentiService {
                 utente.get().getListaDispositivi()
                         .forEach(dispositivo -> responseDispositivo.add(new DTOResponseDispositivoLatoUtente(
                                 dispositivo.getId(),
-                                dispositivo.getTipoDispositivo())));
+                                dispositivo.getStatoDispositivo())));
             }
         return new DTOResponseUtenteLatoUtente(
                 utente.get().getId(),
@@ -154,7 +153,7 @@ public class UtentiService {
                 if (dispositivoOptional.isPresent()) {
                     responseListaDispositivi.add(new DTOResponseDispositivoLatoUtente(
                             dispositivo.getId(),
-                            dispositivoOptional.get().getTipoDispositivo())); // ricordati che nella request in Json passiamo solo l'id
+                            dispositivoOptional.get().getStatoDispositivo())); // ricordati che nella request in Json passiamo solo l'id
 
                     dispositivoOptional.get().setUtente(utente);
                     dispositiviDAO.save(dispositivoOptional.get());

@@ -1,6 +1,5 @@
 package savogineros.Gestionedispositivi.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,14 +18,14 @@ public class Dispositivo {
     private UUID id;
 
     @Enumerated(EnumType.STRING)
-    private TipoDispositivo tipoDispositivo;
+    private StatoDispositivo statoDispositivo;
 
     @ManyToOne
     //@JsonIgnore
     private Utente utente;
 
 
-    public Dispositivo(TipoDispositivo tipoDispositivo) {
-        this.tipoDispositivo = tipoDispositivo;
+    public Dispositivo(StatoDispositivo statoDispositivo) {
+        this.statoDispositivo = statoDispositivo;
     }
 }

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import savogineros.Gestionedispositivi.entities.Dispositivo;
 import savogineros.Gestionedispositivi.exceptions.NotFoundException;
 import savogineros.Gestionedispositivi.payloadsDTO.Dispositivo.DTOResponseDispositivoLatoDispositivo;
-import savogineros.Gestionedispositivi.payloadsDTO.Dispositivo.DTOResponseDispositivoLatoUtente;
 import savogineros.Gestionedispositivi.payloadsDTO.Dispositivo.NewDispositivoRequestDTO;
 import savogineros.Gestionedispositivi.payloadsDTO.Utente.DTOResponseUtenteLatoDispositivo;
 import savogineros.Gestionedispositivi.repositories.DispositiviDAO;
@@ -49,7 +48,7 @@ public class DispositiviService {
 
             return new DTOResponseDispositivoLatoDispositivo(
                     dispositivo.getId(),
-                    dispositivo.getTipoDispositivo(),
+                    dispositivo.getStatoDispositivo(),
                     utenteAssociato
             );
                 }
@@ -59,7 +58,7 @@ public class DispositiviService {
     // POST -> save
     public DTOResponseDispositivoLatoDispositivo salvaDispositivo(NewDispositivoRequestDTO richiestaDispositivo) {
         Dispositivo dispositivo = new Dispositivo();
-        dispositivo.setTipoDispositivo(richiestaDispositivo.tipoDispositivo());
+        dispositivo.setStatoDispositivo(richiestaDispositivo.statoDispositivo());
         dispositivo.setUtente(richiestaDispositivo.utente());
         dispositiviDAO.save(dispositivo);
         // salvato sul DB l'oggetto Dispositivo
@@ -85,7 +84,7 @@ public class DispositiviService {
 
           return new DTOResponseDispositivoLatoDispositivo(
                   dispositivo.getId(),
-                  dispositivo.getTipoDispositivo(),
+                  dispositivo.getStatoDispositivo(),
                   utenteAssociato
           );
         // Funziona tutto ma l'userName di risposta non viene visualizzato correttamente
@@ -105,7 +104,7 @@ public class DispositiviService {
     // PUT Modifica un Dispositivo, dato id e corpo della richiesta
     public Dispositivo modificaDispositivo(UUID idDispositivo, NewDispositivoRequestDTO richiestaDispositivo) {
         Dispositivo dispositivo = getDispositivoById(idDispositivo);
-        dispositivo.setTipoDispositivo(richiestaDispositivo.tipoDispositivo());
+        dispositivo.setStatoDispositivo(richiestaDispositivo.statoDispositivo());
         dispositivo.setUtente(richiestaDispositivo.utente());
         return dispositiviDAO.save(dispositivo); // ricordati che la save fa da creazione o modifica nel caso trovi già un elemento con lo stesso id
     }

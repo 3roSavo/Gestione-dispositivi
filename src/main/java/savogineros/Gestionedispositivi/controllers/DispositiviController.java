@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import savogineros.Gestionedispositivi.entities.Dispositivo;
 import savogineros.Gestionedispositivi.payloadsDTO.Dispositivo.DTOResponseDispositivoLatoDispositivo;
-import savogineros.Gestionedispositivi.payloadsDTO.Dispositivo.DTOResponseDispositivoLatoUtente;
 import savogineros.Gestionedispositivi.payloadsDTO.Dispositivo.NewDispositivoRequestDTO;
 import savogineros.Gestionedispositivi.services.DispositiviService;
 
@@ -38,7 +37,7 @@ public class DispositiviController {
         DTOResponseDispositivoLatoDispositivo dispositivo = dispositiviService.salvaDispositivo(richiestaDispositivo);
         return new DTOResponseDispositivoLatoDispositivo(
                 dispositivo.id(),
-                dispositivo.tipoDispositivo(),
+                dispositivo.statoDispositivo(),
                 dispositivo.utente_associato()
         );
     }

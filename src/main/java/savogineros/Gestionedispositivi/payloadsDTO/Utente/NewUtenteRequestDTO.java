@@ -18,7 +18,7 @@ public record NewUtenteRequestDTO(
         @Size(min = 3, max = 20, message = "Il cognome deve essere compreso tra 3 e 20 caratteri")
         String cognome,
         @NotEmpty(message = "La email è un campo obbligatorio")
-        @Email
+        @Email(message = "Indirizzo e-mail non valido")
         String email,
         List<Dispositivo> listaDispositivi) {
 }

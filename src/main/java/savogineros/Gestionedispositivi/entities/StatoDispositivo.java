@@ -1,5 +1,5 @@
 package savogineros.Gestionedispositivi.entities;
 
-public enum TipoDispositivo {
+public enum StatoDispositivo {
     Disponibile, Assegnato, In_manutenzione, Dismesso
 }

@@ -16,6 +16,7 @@ import savogineros.Gestionedispositivi.services.UtentiService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/utenti")
@@ -41,8 +42,13 @@ public class UtentiController {
     public DTOResponseUtenteLatoUtente creaUtente(@RequestBody @Validated NewUtenteRequestDTO utente, BindingResult validation) {
         // Per completare la validazione devo in qualche maniera fare un controllo del tipo: se ci sono errori -> manda risposta con 400 Bad Request
         if (validation.hasErrors()) {
-            System.out.println(validation);
-            throw new BadRequestException("Ci sono errori nel payload");
+            //System.out.println(validation);
+
+            throw new BadRequestException("Ci sono errori nel payload :" + System.lineSeparator() +
+                    validation.getAllErrors().stream()
+                            .map(error -> error.getDefaultMessage())
+                            .collect(Collectors.joining(System.lineSeparator())));
+            // non so bene cosa faccia l'ultima riga ma stampa con successo in json tutti gli errori
         } else {
             return utentiService.salvaUtente(utente);
         }
