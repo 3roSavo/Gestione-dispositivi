@@ -60,30 +60,24 @@ public class UtentiService {
                 utenteRequestDTO.cognome(),
                 utenteRequestDTO.email()
         );
-        // il costruttore non accetta la lista, quindi la setto dopo la creazione,
-        // prima però devo assicurarmi che ci siano o meno elementi
-        if (!utenteRequestDTO.listaDispositivi().isEmpty()) {
 
-            utente.getListaDispositivi().addAll(utenteRequestDTO.listaDispositivi());
-
-            listaDispositivi = utente.getListaDispositivi()
-                    .stream()
-                    .map(dispositivo ->
-                            new DTOResponseDispositivoLatoUtente(
-                                    dispositivo.getId(),
-                                    dispositivo.getStatoDispositivo()))
-                    .toList();
-        }
-
+        // Se ho compreso bene sarebbe da creare col dao utente l'oggetto nel DB e poi associarci la lista di dispositivi
         utentiDAO.save(utente);
 
-        /*utente.setUserName(utenteRequestDTO.userName());
-        utente.setNome(utenteRequestDTO.nome());
-        utente.setCognome(utenteRequestDTO.cognome());
-        utente.setEmail(utenteRequestDTO.email());
-        utente.setListaDispositivi(utenteRequestDTO.listaDispositivi());*/
+        // il costruttore non accetta la lista, quindi la setto dopo la creazione,
+        // prima però devo assicurarmi che ci siano o meno elementi
+        utente.setListaDispositivi(new ArrayList<>());
+        if (!utenteRequestDTO.listaDispositivi().isEmpty()) {
 
+            utenteRequestDTO.listaDispositivi().forEach(dispositivo -> {
+                Dispositivo dispositivo1 = dispositiviDAO.findById(dispositivo.getId()).orElseThrow(() -> new NotFoundException(dispositivo.getId()));
+                dispositivo1.setUtente(utente);
+                dispositiviDAO.save(dispositivo1);
+                listaDispositivi.add(new DTOResponseDispositivoLatoUtente(dispositivo1.getId(), dispositivo1.getStatoDispositivo()));
 
+            });
+
+        }
 
         return new DTOResponseUtenteLatoUtente(
                 utente.getId(),
