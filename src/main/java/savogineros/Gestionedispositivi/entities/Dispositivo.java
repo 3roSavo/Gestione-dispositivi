@@ -2,16 +2,14 @@ package savogineros.Gestionedispositivi.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 @Entity
 public class Dispositivo {
 

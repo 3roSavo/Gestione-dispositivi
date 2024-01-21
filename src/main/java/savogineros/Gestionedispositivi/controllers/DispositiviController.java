@@ -34,11 +34,12 @@ public class DispositiviController {
     // URL http://localhost:3001/dispositivi     + (body)
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public DTOResponseDispositivoLatoUtente creaDispositivo(@RequestBody NewDispositivoRequestDTO richiestaDispositivo) {
-        Dispositivo dispositivo = dispositiviService.salvaDispositivo(richiestaDispositivo);
-        return new DTOResponseDispositivoLatoUtente(
-                dispositivo.getId(),
-                dispositivo.getTipoDispositivo()
+    public DTOResponseDispositivoLatoDispositivo creaDispositivo(@RequestBody NewDispositivoRequestDTO richiestaDispositivo) {
+        DTOResponseDispositivoLatoDispositivo dispositivo = dispositiviService.salvaDispositivo(richiestaDispositivo);
+        return new DTOResponseDispositivoLatoDispositivo(
+                dispositivo.id(),
+                dispositivo.tipoDispositivo(),
+                dispositivo.utente_associato()
         );
     }
 

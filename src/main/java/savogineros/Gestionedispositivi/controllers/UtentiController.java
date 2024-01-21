@@ -36,22 +36,9 @@ public class UtentiController {
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public DTOResponseUtenteLatoUtente creaUtente(@RequestBody NewUtenteRequestDTO utente) {
-        Utente newUtente = utentiService.salvaUtente(utente);
-        List<DTOResponseDispositivoLatoUtente> listaDispositivi = new ArrayList<>();
-        newUtente.getListaDispositivi().forEach
-                (dispositivo ->
-                        listaDispositivi.add(new DTOResponseDispositivoLatoUtente(dispositivo.getId(),
-                                dispositivo.getTipoDispositivo())));
-        return new DTOResponseUtenteLatoUtente(
-                newUtente.getId(),
-                newUtente.getUserName(),
-                newUtente.getNome(),
-                newUtente.getCognome(),
-                newUtente.getEmail(),
-                listaDispositivi
+        return utentiService.salvaUtente(utente);
                 // Anche qui utilizzo i DTO per personalizzare la risposta
                 // Mi esplode la testa ma dovrebbe funzionare :(
-        );
     }
 
     // GET - Ricerca specifico Utente

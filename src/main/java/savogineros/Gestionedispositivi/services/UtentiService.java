@@ -6,22 +6,27 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import savogineros.Gestionedispositivi.entities.Dispositivo;
 import savogineros.Gestionedispositivi.entities.Utente;
 import savogineros.Gestionedispositivi.exceptions.NotFoundException;
 import savogineros.Gestionedispositivi.payloadsDTO.Dispositivo.DTOResponseDispositivoLatoUtente;
 import savogineros.Gestionedispositivi.payloadsDTO.Utente.NewUtenteRequestDTO;
 import savogineros.Gestionedispositivi.payloadsDTO.Utente.DTOResponseUtenteLatoUtente;
+import savogineros.Gestionedispositivi.repositories.DispositiviDAO;
 import savogineros.Gestionedispositivi.repositories.UtentiDAO;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UtentiService {
     @Autowired
     private UtentiDAO utentiDAO;
+    @Autowired
+    private DispositiviDAO dispositiviDAO;
 
     // GET -> getAllUsers
     public Page<DTOResponseUtenteLatoUtente> getAllUsers(int page, int size, String sort) {
@@ -46,14 +51,40 @@ public class UtentiService {
     }
 
     // POST -> save
-    public Utente salvaUtente(NewUtenteRequestDTO utenteRequestDTO) {
-        Utente utente = new Utente();
-        utente.setUserName(utenteRequestDTO.userName());
+    public DTOResponseUtenteLatoUtente salvaUtente(NewUtenteRequestDTO utenteRequestDTO) {
+
+        Utente utente = new Utente(
+                utenteRequestDTO.userName(),
+                utenteRequestDTO.nome(),
+                utenteRequestDTO.cognome(),
+                utenteRequestDTO.email()
+        ); // il costruttore non accetta la lista, quindi la setto dopo la creazione
+        utente.getListaDispositivi().addAll(utenteRequestDTO.listaDispositivi());
+
+        utentiDAO.save(utente);
+
+        /*utente.setUserName(utenteRequestDTO.userName());
         utente.setNome(utenteRequestDTO.nome());
         utente.setCognome(utenteRequestDTO.cognome());
         utente.setEmail(utenteRequestDTO.email());
-        utente.setListaDispositivi(utenteRequestDTO.listaDispositivi());
-        return utentiDAO.save(utente);
+        utente.setListaDispositivi(utenteRequestDTO.listaDispositivi());*/
+
+        List<DTOResponseDispositivoLatoUtente> listaDispositivi = utente.getListaDispositivi()
+                .stream()
+                .map(dispositivo ->
+                        new DTOResponseDispositivoLatoUtente(
+                                dispositivo.getId(),
+                                dispositivo.getTipoDispositivo()))
+                .toList();
+
+        return new DTOResponseUtenteLatoUtente(
+                utente.getId(),
+                utente.getUserName(),
+                utente.getNome(),
+                utente.getCognome(),
+                utente.getEmail(),
+                listaDispositivi
+        );
     }
 
     // GET Ricerca specifico utente con id
@@ -73,7 +104,40 @@ public class UtentiService {
         utente.setNome(richiestaUtente.nome());
         utente.setCognome(richiestaUtente.cognome());
         utente.setEmail(richiestaUtente.email());
-        utente.setListaDispositivi(richiestaUtente.listaDispositivi());
+
+        utente.getListaDispositivi().clear();
+
+        // Prima prova risoluzione problema aggiunta lista
+        /*List<Dispositivo> listaDispositivi = new ArrayList<>(richiestaUtente.listaDispositivi()
+                .stream()
+                .map(dispositivo -> dispositiviDAO
+                        .findById(dispositivo.getId()).orElseThrow(() -> new NotFoundException(dispositivo.getId())))
+                .toList());*/
+
+
+        // FORSE IL PROBLEMA È CHE DEVO USARE IL DAO DEL DISPOSITIVO PER SALVARE UNO PIU' DISPOSITIVI NELL'UTENTE
+        // OK RISOLTO PROPRIO IN QUESTO MODO MA E' IL METODO CORRETTO???
+        richiestaUtente.listaDispositivi().forEach(dispositivo -> {
+            Optional<Dispositivo> dispositivoOptional =  dispositiviDAO.findById(dispositivo.getId());
+            // Controlliamo prima che la lista contenga id validi
+            if (dispositivoOptional.isPresent()) {
+                dispositivoOptional.get().setUtente(utente);
+                dispositiviDAO.save(dispositivoOptional.get());
+            } else {
+                throw new NotFoundException(dispositivo.getId());
+            }
+        });
+
+
+        // Seconda prova risoluzione aggiunta lista
+        //utente.setListaDispositivi(richiestaUtente.listaDispositivi());
+        //listaDispositivi.forEach(dispositivo -> utente.getListaDispositivi().add(dispositivo));
+
+        //utente.getListaDispositivi().addAll(listaDispositivi);
+        //utente.setListaDispositivi(listaDispositivi);
+        utente.getListaDispositivi().forEach(dispositivo -> System.out.println(dispositivo));
+
+        // non mi aggiorna la lista dispositivi
         return utentiDAO.save(utente); // ricordati che la save fa da creazione o modifica nel caso trovi già un elemento con lo stesso id
     }
 

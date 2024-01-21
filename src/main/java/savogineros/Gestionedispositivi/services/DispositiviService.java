@@ -29,6 +29,9 @@ public class DispositiviService {
     }*/
 
     // Prova con response di tipo DTO
+    // Anche qui ho utilizzato due DTO, uno per la visualizzazione del dispositivo
+    // e uno per la visualizzazione dell'utente collegato, situato all'interno del primo DTO.
+    // Se il lavoro è fatto bene si evita di incorrere in eccezioni di tipo stackOverflow
     public Page<DTOResponseDispositivoLatoDispositivo> getAllDispositivi(int page, int size, String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<Dispositivo> dispositivoPage = dispositiviDAO.findAll(pageable);
@@ -54,11 +57,39 @@ public class DispositiviService {
     }
 
     // POST -> save
-    public Dispositivo salvaDispositivo(NewDispositivoRequestDTO richiestaDispositivo) {
+    public DTOResponseDispositivoLatoDispositivo salvaDispositivo(NewDispositivoRequestDTO richiestaDispositivo) {
         Dispositivo dispositivo = new Dispositivo();
         dispositivo.setTipoDispositivo(richiestaDispositivo.tipoDispositivo());
         dispositivo.setUtente(richiestaDispositivo.utente());
-        return dispositiviDAO.save(dispositivo);
+        dispositiviDAO.save(dispositivo);
+        // salvato sul DB l'oggetto Dispositivo
+        // Passiamo ora alla response JSON
+
+        DTOResponseUtenteLatoDispositivo utenteAssociato = dispositivo.getUtente() != null ?
+                new DTOResponseUtenteLatoDispositivo(
+                        dispositivo.getUtente().getId(),
+                        dispositivo.getUtente().getUserName()
+                )
+                : null;
+
+           /*if (dispositivo.getUtente() != null) {
+                utenteAssociato = new DTOResponseUtenteLatoDispositivo(
+                    dispositivo.getUtente().getId(),
+                    dispositivo.getUtente().getUserName()
+                );
+           } else {
+               utenteAssociato = null;
+           }*/
+
+           // Nel caso manchi l'utente nella richiesta, esso avrà valore null, senza il controllo causa un errore
+
+          return new DTOResponseDispositivoLatoDispositivo(
+                  dispositivo.getId(),
+                  dispositivo.getTipoDispositivo(),
+                  utenteAssociato
+          );
+        // Funziona tutto ma l'userName di risposta non viene visualizzato correttamente
+        // la mia ipotesi è che ci sia il solito problema lazy fetch o qualche sincronizzazione ritardata
     }
 
     // GET Ricerca specifico Dispositivo con id
